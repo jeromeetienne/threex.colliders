@@ -100,4 +100,28 @@ var collider    = THREEx.Collider.createFromObject3d(object3d)
 
 ### How to receive event from colliders ?
 
+There are 3 kind of events
+    - **collideEnter** which is triggered when an object start colliding with another
+    - **collideExit** which is notified when the object is no more colliding with another
+    - **collideStay** which is notified when the object is still colliding with another
 
+To start listening on a event, just do
+
+```
+var onCollideEnter  = collider.addEventListener('colliderEnter', function(otherObject3d, myObject3d){
+    console.log('contactEnter', myObject3d.name, 'with', otherObject3d.name)
+})
+```
+
+To remove the event listener, do the following
+
+```
+collider.removeEventListener(onColliderEnter)
+```
+
+The full callback to notify collision event is 
+
+```
+collider.addEventListener('colliderEnter', function(otherObject3d, myObject3d, otherCollider, myCollider){  
+})
+```

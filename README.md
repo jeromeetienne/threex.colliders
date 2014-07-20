@@ -2,7 +2,7 @@ threex.colliders
 =============
 
 threex.coloradjust is a 
-[threex game extension for three.js](http://www.threejsgame.com/extensions/).
+[threex game extension for three.js](http://www.threejsgames.com/extensions/).
 It provides an collider system. Each ```THREE.Object3D``` may be attached to a ```THREEx.Collider```.
 Then you add those in a ```THREEx.ColliderSystem``` and ```.compute()``` all the collisions at this time.
 When 2 colliders start colliding with each other, the event 'collideEnter' is sent to each listener. When those colliders keep colliding, the event 'collideStay' is sent. When those colliders are no more colliding, the event sent is 'collideExit'. 

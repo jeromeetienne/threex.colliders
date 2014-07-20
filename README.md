@@ -47,14 +47,26 @@ colliderSystem.compute()
 
 ### How To Add Sphere Collider ?
 
+First you get THREE.Sphere.
+Say you get the default bounding sphere of the object geometry
+
 ```
-// say you get the default bounding sphere of the object geometry
 var sphere  = object3d.geometry.boundingSphere.clone()
-// create the collider
+```
+
+Then from it, you create the collider
+
+```
 var collider    = new THREEx.ColliderSphere(object3d, sphere)
-// add it in the system
+```
+
+Dont forget, to add collider in the system
+
+```
 colliderSystem.add(collider)
 ```
+
+And you are done! :)
 
 ### How To Add Box3 Collider ? (or call it [AABB](http://en.wikipedia.org/wiki/Axis-aligned_bounding_box#Axis-aligned_minimum_bounding_box))
 
@@ -72,10 +84,20 @@ Now with your ```THREEx.Box3``` you create your controller
 var collider    = new THREEx.ColliderBox3(object3d, box3)
 ```
 
-and Add it to the system
+and add it to the system
 
 ```
 colliderSystem.add(collider)
 ```
 
+### Helpers for easier creation
+
+If you dont want to handle all those cases yourself, i create a small helper
+
+```
+var collider    = THREEx.Collider.createFromObject3d(object3d)
+```
+
 ### How to receive event from colliders ?
+
+

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<script src='vendor/three.js/build/three.min.js'></script>
+<script src='../threex.colliders.js'></script>
+<body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'><script>
+	var renderer	= new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild( renderer.domElement );
+
+	var onRenderFcts= [];
+	var scene	= new THREE.Scene();
+	var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+	camera.position.z = 3;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+	var colliderSystem	= new THREEx.ColliderSystem()
+	onRenderFcts.push(function(){
+		colliderSystem.compute()		
+	})
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		set 3 point lighting						//
+	//////////////////////////////////////////////////////////////////////////////////
+
+	;(function(){
+		// add a ambient light
+		var light	= new THREE.AmbientLight( 0x020202 )
+		scene.add( light )
+		// add a light in front
+		var light	= new THREE.DirectionalLight('white', 1)
+		light.position.set(0.5, 0.5, 2)
+		scene.add( light )
+		// add a light behind
+		var light	= new THREE.DirectionalLight('white', 0.75)
+		light.position.set(-0.5, -0.5, -2)
+		scene.add( light )		
+	})()
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Left Columnt							//
+	//////////////////////////////////////////////////////////////////////////////////
+
+	var columnLeft	= new THREE.Object3D
+	columnLeft.position.x	= -1
+	scene.add(columnLeft)
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+;(function(){
+	// add object3d
+	var geometry	= new THREE.SphereGeometry( 0.5, 32, 16);
+	var geometry	= new THREE.CubeGeometry(0.3, 0.3, 0.3);
+	var material	= new THREE.MeshBasicMaterial({
+		wireframe	: true,
+		color		: 'white',
+	});
+	var mesh	= new THREE.Mesh( geometry, material );
+	columnLeft.add( mesh );
+	mesh.position.y= 2
+
+	onRenderFcts.push(function(delta){
+		mesh.position.y	-= 0.5*delta
+		if( mesh.position.y < -2 )	mesh.position.y	= 2
+	})
+
+	// add collider
+	var collider	= THREEx.Collider.createFromObject3d(mesh)
+	colliderSystem.add(collider)
+	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
+		material.color.set('red')
+	})
+	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
+		material.color.set('white')
+	})
+})()
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
+;(function(){
+	// add object3d
+	var geometry	= new THREE.SphereGeometry( 0.5, 32, 16);
+	var geometry	= new THREE.CubeGeometry(1,0.1,1);
+	var material	= new THREE.MeshBasicMaterial({
+		wireframe	: true,
+		color		: 'white',
+	});
+	var mesh	= new THREE.Mesh( geometry, material );
+	columnLeft.add( mesh );
+	mesh.position.y= 0.3
+
+	// add collider
+	var collider	= THREEx.Collider.createFromObject3d(mesh)
+	colliderSystem.add(collider)
+	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
+		material.color.set('red')
+	})
+	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
+		material.color.set('white')
+	})
+})()
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
+;(function(){
+	// add object3d
+	var geometry	= new THREE.SphereGeometry( 0.3, 32, 16);
+	// var geometry	= new THREE.CubeGeometry(1,0.2,1);
+	var material	= new THREE.MeshBasicMaterial({
+		wireframe	: true,
+		color		: 'white',
+	});
+	var mesh	= new THREE.Mesh( geometry, material );
+	columnLeft.add( mesh );
+	mesh.position.x	= -0.25
+	mesh.position.y	= -0.5
+
+	// add collider
+	var collider	= THREEx.Collider.createFromObject3d(mesh)
+	colliderSystem.add(collider)
+	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
+		material.color.set('red')
+	})
+	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
+		material.color.set('white')
+	})
+})()
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//		Comment								//
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//		Comment								//
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//		Comment								//
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//		Comment								//
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//		Comment								//
+//////////////////////////////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Left Columnt							//
+	//////////////////////////////////////////////////////////////////////////////////
+
+	var columnRight	= new THREE.Object3D
+	columnRight.position.x	= +1
+	scene.add(columnRight)
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+;(function(){
+	// add object3d
+	var geometry	= new THREE.SphereGeometry( 0.15, 32, 16);
+	// var geometry	= new THREE.CubeGeometry(0.3, 0.3, 0.3);
+	var material	= new THREE.MeshBasicMaterial({
+		wireframe	: true,
+		color		: 'white',
+	});
+	var mesh	= new THREE.Mesh( geometry, material );
+	columnRight.add( mesh );
+	mesh.position.y= 2
+
+	onRenderFcts.push(function(delta){
+		mesh.position.y	-= 0.5*delta
+		if( mesh.position.y < -2 )	mesh.position.y	= 2
+	})
+
+	// add collider
+	var collider	= THREEx.Collider.createFromObject3d(mesh)
+	colliderSystem.add(collider)
+	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
+		material.color.set('red')
+	})
+	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
+		material.color.set('white')
+	})
+})()
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
+;(function(){
+	// add object3d
+	var geometry	= new THREE.SphereGeometry( 0.5, 32, 16);
+	var geometry	= new THREE.CubeGeometry(1,0.1,1);
+	var material	= new THREE.MeshBasicMaterial({
+		wireframe	: true,
+		color		: 'white',
+	});
+	var mesh	= new THREE.Mesh( geometry, material );
+	columnRight.add( mesh );
+	mesh.position.y= 0.3
+
+	// add collider
+	var collider	= THREEx.Collider.createFromObject3d(mesh)
+	colliderSystem.add(collider)
+	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
+		material.color.set('red')
+	})
+	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
+		material.color.set('white')
+	})
+})()
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
+;(function(){
+	// add object3d
+	var geometry	= new THREE.SphereGeometry( 0.3, 32, 16);
+	// var geometry	= new THREE.CubeGeometry(1,0.2,1);
+	var material	= new THREE.MeshBasicMaterial({
+		wireframe	: true,
+		color		: 'white',
+	});
+	var mesh	= new THREE.Mesh( geometry, material );
+	columnRight.add( mesh );
+	mesh.position.x	= +0.25
+	mesh.position.y	= -0.5
+
+	// add collider
+	var collider	= THREEx.Collider.createFromObject3d(mesh)
+	colliderSystem.add(collider)
+	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
+		material.color.set('red')
+	})
+	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
+		material.color.set('white')
+	})
+})()
+
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Camera Controls							//
+	//////////////////////////////////////////////////////////////////////////////////
+	var mouse	= {x : 0, y : 0}
+	document.addEventListener('mousemove', function(event){
+		mouse.x	= (event.clientX / window.innerWidth ) - 0.5
+		mouse.y	= (event.clientY / window.innerHeight) - 0.5
+	}, false)
+	onRenderFcts.push(function(delta, now){
+		camera.position.x += (mouse.x*5 - camera.position.x) * (delta*3)
+		camera.position.y += (mouse.y*5 - camera.position.y) * (delta*3)
+		camera.lookAt( scene.position )
+	})
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		render the scene						//
+	//////////////////////////////////////////////////////////////////////////////////
+	onRenderFcts.push(function(){
+		renderer.render( scene, camera );		
+	})
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	//		loop runner							//
+	//////////////////////////////////////////////////////////////////////////////////
+	var lastTimeMsec= null
+	requestAnimationFrame(function animate(nowMsec){
+		// keep looping
+		requestAnimationFrame( animate );
+		// measure time
+		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+		lastTimeMsec	= nowMsec
+		// call each update function
+		onRenderFcts.forEach(function(onRenderFct){
+			onRenderFct(deltaMsec/1000, nowMsec/1000)
+		})
+	})
+</script></body>

@@ -22,59 +22,62 @@
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add an object and make it move					//
 	//////////////////////////////////////////////////////////////////////////////////	
+;(function(){
 	var geometry	= new THREE.SphereGeometry( 0.5, 32, 16);
 	var geometry	= new THREE.CubeGeometry(1,1,1);
 	var material	= new THREE.MeshNormalMaterial();
-	var mesh1	= new THREE.Mesh( geometry, material );
-	mesh1.position.y= 0.9
-	mesh1.rotation.z= Math.PI/4
-	mesh1.name	= 'mesh1'
-	scene.add( mesh1 );
+	var mesh	= new THREE.Mesh( geometry, material );
+	mesh.name	= 'mesh A'
+	mesh.position.y= 0.9
+	mesh.rotation.z= Math.PI/4
+	scene.add( mesh );
 
-	mesh1.position.x= 2
+	mesh.position.x= 2
 	onRenderFcts.push(function(delta){
-		mesh1.position.x	-= 0.5*delta
+		mesh.position.x	-= 0.5*delta
+	})
+	// init helper
+	var helper	= new THREE.WireframeHelper(mesh)
+	helper.visible	= false
+	scene.add(helper)
+
+	// init collider
+	var collider	= THREEx.Collider.createFromObject3d(mesh)
+	colliderSystem.add(collider)
+	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
+		console.log('collideEnter', myObject3d.name, 'with', otherObject3d.name)
+		helper.visible	= true
+	})
+	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
+		console.log('collideExit', myObject3d.name, 'with', otherObject3d.name)
+		helper.visible	= false
+	})
+})()
+;(function(){
+	var geometry	= new THREE.SphereGeometry( 0.5, 32, 16);
+	// var geometry	= new THREE.CubeGeometry(1,1,1);
+	var material	= new THREE.MeshNormalMaterial();
+	var mesh	= new THREE.Mesh( geometry, material );
+	mesh.name	= 'mesh B'
+	scene.add( mesh );
+
+	var helper	= new THREE.WireframeHelper(mesh)
+	helper.visible	= false
+	scene.add(helper)
+
+	var collider	= THREEx.Collider.createFromObject3d(mesh)
+	colliderSystem.add(collider)
+
+	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
+		console.log('collideEnter', myObject3d.name, 'with', otherObject3d.name)
+		helper.visible	= true
+	})
+	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
+		console.log('collideExit', myObject3d.name, 'with', otherObject3d.name)
+		helper.visible	= false
 	})
 
-	var helper1	= new THREE.WireframeHelper(mesh1)
-	helper1.visible	= false
-	scene.add(helper1)
-
-	// var collider1	= new THREEx.Collider(mesh1)
-	var collider1	= THREEx.Collider.createFromObject3d(mesh1)
-	colliderSystem.add(collider1)
-
-
-	collider1.addEventListener('contactEnter', function(otherObject3d, myObject3d){
-		console.log('contactEnter', myObject3d.name, 'with', otherObject3d.name)
-		helper1.visible	= true
-	})
-	collider1.addEventListener('contactExit', function(otherObject3d, myObject3d){
-		console.log('contactExit', myObject3d.name, 'with', otherObject3d.name)
-		helper1.visible	= false
-	})
-
-
-	var geometry	= new THREE.CubeGeometry(1,1,1);
-	var mesh2	= new THREE.Mesh( geometry, material );
-	mesh2.name	= 'mesh2'
-	scene.add( mesh2 );
-
-	var helper2	= new THREE.WireframeHelper(mesh2)
-	helper2.visible	= false
-	scene.add(helper2)
-
-	var collider2	= THREEx.Collider.createFromObject3d(mesh2)
-	colliderSystem.add(collider2)
-
-	collider2.addEventListener('contactEnter', function(otherObject3d, myObject3d){
-		console.log('contactEnter', myObject3d.name, 'with', otherObject3d.name)
-		helper2.visible	= true
-	})
-	collider2.addEventListener('contactExit', function(otherObject3d, myObject3d){
-		console.log('contactExit', myObject3d.name, 'with', otherObject3d.name)
-		helper2.visible	= false
-	})
+})()
 
 
 

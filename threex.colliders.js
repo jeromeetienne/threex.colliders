@@ -44,16 +44,16 @@ THREEx.ColliderSystem	= function(){
 				if( doCollide ){
 					// notify proper events
 					if( stateExisted === true ){
-						dispatchEvent(collider1, collider2, 'contactStay')
+						dispatchEvent(collider1, collider2, 'collideStay')
 					}else{
-						dispatchEvent(collider1, collider2, 'contactEnter')
+						dispatchEvent(collider1, collider2, 'collideEnter')
 					}
 					// update states
 					states[stateLabel]	= true
 				}else{
 					// notify proper events
 					if( stateExisted ){
-						dispatchEvent(collider1, collider2, 'contactExit')
+						dispatchEvent(collider1, collider2, 'collideExit')
 					}
 					// update states
 					delete states[stateLabel]
@@ -219,10 +219,10 @@ THREEx.ColliderBox3.prototype.collideWithSphere	= function(otherCollider){
 	var otherSphere	= otherCollider.sphere.clone()
 	otherCollider.object3d.updateMatrixWorld( true );
 	otherSphere.applyMatrix4(otherCollider.object3d.matrixWorld)
-
-	var distanceTo	= this.box3.distanceToPoint(otherSphere.center)
+	
+	var distanceTo	= thisBox3.distanceToPoint(otherSphere.center)
 	var doCollide	= distanceTo <= otherSphere.radius ? true : false
-	return doCollide ? true : false
+	return doCollide
 }
 
 

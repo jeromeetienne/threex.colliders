@@ -10,135 +10,74 @@
 	var onRenderFcts= [];
 	var scene	= new THREE.Scene();
 	var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
-	camera.position.z = 5;
+	camera.position.z = 3;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Comment								//
 	//////////////////////////////////////////////////////////////////////////////////
 	var colliderSystem	= new THREEx.ColliderSystem()
 	onRenderFcts.push(function(){
-		colliderSystem.notify()	
+		colliderSystem.compute()		
 	})
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add an object and make it move					//
 	//////////////////////////////////////////////////////////////////////////////////	
 ;(function(){
-	var geometry	= new THREE.SphereGeometry( 0.9, 32, 16);
-	// var geometry	= new THREE.BoxGeometry(1,1,1);
+	var geometry	= new THREE.SphereGeometry( 0.5, 32, 16);
+	var geometry	= new THREE.CubeGeometry(1,1,1);
 	var material	= new THREE.MeshNormalMaterial();
 	var mesh	= new THREE.Mesh( geometry, material );
-	mesh.name	= 'meshA'
+	mesh.name	= 'mesh A'
+	mesh.position.y= 0.9
+	mesh.rotation.z= Math.PI/4
 	scene.add( mesh );
 
-	// set initial position
-	mesh.position.x= +1
-	mesh.position.y= 0.5
-	mesh.rotation.z= Math.PI/4
-
-	// mesh.position.y= 0.9
-	// mesh.rotation.z= 0
-
-	// make it move
+	mesh.position.x= 2
 	onRenderFcts.push(function(delta){
 		mesh.position.x	-= 0.5*delta
-		mesh.rotation.z	+= Math.PI*2*delta * 0.1
-		if( mesh.position.x <= -1 ){
-			mesh.position.x	= +1
-		}
 	})
-	;(function(){
-		var angle	= 0;
-		onRenderFcts.push(function(delta){
-			angle		+= Math.PI*2*delta * 0.1
-			mesh.scale.y	= 1.0+ 0.5*Math.sin(angle)
-		})
-	})()
-	// compute collider shape from mesh.geometry.vertices
-	var box3	= new THREE.Box3()
-	box3.setFromPoints( mesh.geometry.vertices );
-	// init collider
-	var collider	= new THREEx.ColliderBox3(mesh, box3)
-	colliderSystem.add(collider)
-	onRenderFcts.push(function(delta){
-		collider.update()
-	})
-
-	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
-		console.log('collideEnter', myObject3d.name, 'with', otherObject3d.name)
-		helper.material.color.set('red')
-	})
-	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
-		console.log('collideExit', myObject3d.name, 'with', otherObject3d.name)
-		helper.material.color.set('green')
-	})
-
-
-	// init collider helper
-	var helper	= new THREEx.ColliderHelper(collider)
-	helper.material.color.set('green')
+	// init helper
+	var helper	= new THREE.WireframeHelper(mesh)
+	helper.visible	= false
 	scene.add(helper)
-	onRenderFcts.push(function(delta){
-		helper.update()
-	})
-})()
-
-
-;(function(){
-	// var geometry	= new THREE.SphereGeometry( 0.5, 32, 16);
-	var geometry	= new THREE.BoxGeometry(1,1,1);
-	var material	= new THREE.MeshNormalMaterial();
-	var mesh	= new THREE.Mesh( geometry, material );
-	mesh.name	= 'meshB'
-	scene.add( mesh );
-
-	// set initial position
-	mesh.position.x= -1
-	mesh.position.y= -0.8
-	// mesh.rotation.z= Math.PI/4
-
-	// make it move
-	onRenderFcts.push(function(delta){
-		mesh.position.x	+= 0.5*delta
-		// mesh.rotation.z	+= Math.PI*2*delta * 0.1
-
-		if( mesh.position.x >= +1 ){
-			mesh.position.x	= -1
-		}
-	})
-
-	;(function(){
-		var angle	= 0;
-		onRenderFcts.push(function(delta){
-			angle		+= Math.PI*2*delta * 0.1
-			mesh.scale.y	= 1.0+ 0.5*Math.sin(angle)
-		})
-	})()
 
 	// init collider
 	var collider	= THREEx.Collider.createFromObject3d(mesh)
 	colliderSystem.add(collider)
-	onRenderFcts.push(function(delta){
-		collider.update()
-	})
-
 	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
 		console.log('collideEnter', myObject3d.name, 'with', otherObject3d.name)
-		helper.material.color.set('red')
+		helper.visible	= true
 	})
 	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
 		console.log('collideExit', myObject3d.name, 'with', otherObject3d.name)
-		helper.material.color.set('green')
+		helper.visible	= false
 	})
+})()
+;(function(){
+	var geometry	= new THREE.SphereGeometry( 0.5, 32, 16);
+	// var geometry	= new THREE.CubeGeometry(1,1,1);
+	var material	= new THREE.MeshNormalMaterial();
+	var mesh	= new THREE.Mesh( geometry, material );
+	mesh.name	= 'mesh B'
+	scene.add( mesh );
 
-
-	// init collider helper
-	var helper	= new THREEx.ColliderHelper(collider)
-	helper.material.color.set('green')
+	var helper	= new THREE.WireframeHelper(mesh)
+	helper.visible	= false
 	scene.add(helper)
-	onRenderFcts.push(function(delta){
-		helper.update()
+
+	var collider	= THREEx.Collider.createFromObject3d(mesh)
+	colliderSystem.add(collider)
+
+	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
+		console.log('collideEnter', myObject3d.name, 'with', otherObject3d.name)
+		helper.visible	= true
 	})
+	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
+		console.log('collideExit', myObject3d.name, 'with', otherObject3d.name)
+		helper.visible	= false
+	})
+
 })()
 
 
@@ -154,8 +93,8 @@
 		mouse.y	= (event.clientY / window.innerHeight) - 0.5
 	}, false)
 	onRenderFcts.push(function(delta, now){
-		camera.position.x += (mouse.x*2 - camera.position.x) * (delta*3)
-		camera.position.y += (mouse.y*2 - camera.position.y) * (delta*3)
+		camera.position.x += (mouse.x*5 - camera.position.x) * (delta*3)
+		camera.position.y += (mouse.y*5 - camera.position.y) * (delta*3)
 		camera.lookAt( scene.position )
 	})
 

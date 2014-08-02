@@ -1,11 +1,75 @@
+# about refactor
+* remove the spheres
+        * keep the fork mechanism with inheritance
+        * but remove all spheres
+* THREEx.Collider
+        * .object3d
+* THREEx.ColliderBox3d inherit from THREEx.Collider
+        * .shape
+        * .syncPosition = true/false
+        * .syncRotation = true/false
+        * .syncScale = true/false
+        * .sync() to sync appropriatly
+                * update the .lastSyncedShape
+        * .collideWith
+                * it is done between .lastSyncedShape
+* in THREEx.ColliderSystem.compute()
+        * do a pass of .sync on all colliders
+        * then call the collideWith
+                * "with new api, .updateMatrixWorld is now O(n) instead of O(n*sqrt(n)). fun :)"
+* what about the demo ?
+        * well it is supposed to show a basic.html with simple yet comprehensible usage
+        * it will show the possibilities of the extensions
+        * it is possible to choose various THREE.Geometry for each shape
+        * on contact the object3d will react as visual feedback for the user
+        * each collider expose all the .sync* variables
+        * provide some presets
+                * make them as educative as possible
+        * one object toward the other in X, with a light delta in Y
+        * a slider to go back in time would make it more educative
+* How to do the helpers ? 
+    - from three.js definition
+        + an helper is a THREE.Object3D attached at the scene itself or attached to the helped object3d. check in editor
+        + it has a .update() function which make the helper in sync with object3d 
+    - in our case, it will display a AABB
+    - keep the type fork in the threex.colliderhelpers.js
+    - remove the sphere tho
+    - it display the .lastSyncedShape
+    - so to be in sync, the helper.update() MUST be called after collider.sync()
+        + maybe to do a ```helper.update(forceSync)```
+        + with forceSync which default to false
+    - worst thing which can happen ?
+        - the collider helper is 1 frame behind the collider itself.
+        - we can leave with that
+
+## More about helpers
+- from three.js definition
+    + an helper is a THREE.Object3D attached at the scene itself or attached to the helped object3d. check in editor
+    + it has a .update() function which make the helper in sync with object3d 
+- in our case, it will display a AABB
+    + So a Geometry.Box3(1,1,1)
+    + the size update will be done at the helper.scale level
+    + the center of collider.shape box3 is the helper.position
+- keep the type fork in the threex.colliderhelpers.js
+- remove the sphere tho
+- it display the .lastSyncedShape
+- so to be in sync, the helper.update() MUST be called after collider.sync()
+    + maybe to do a ```helper.update(forceSync)```
+    + with forceSync which default to false
+- worst thing which can happen ?
+    - the collider helper is 1 frame behind the collider itself.
+    - we can leave with that
+
+
+
 threex.colliders
 =============
 
-threex.coloradjust is a 
+threex.coloradjust is a
 [threex game extension for three.js](http://www.threejsgames.com/extensions/).
 It provides an collider system. Each ```THREE.Object3D``` may be attached to a ```THREEx.Collider``` for Sphere or AABB.
 Then you add those in a ```THREEx.ColliderSystem``` and ```.compute()``` all the collisions at this time.
-When 2 colliders start colliding with each other, the event 'collideEnter' is sent to each listener. When those colliders keep colliding, the event 'collideStay' is sent. When those colliders are no more colliding, the event sent is 'collideExit'. 
+When 2 colliders start colliding with each other, the event 'collideEnter' is sent to each listener. When those colliders keep colliding, the event 'collideStay' is sent. When those colliders are no more colliding, the event sent is 'collideExit'.
 
 Show Don't Tell
 ===============
@@ -47,7 +111,7 @@ var colliderSystem  = new THREEx.ColliderSystem()
 Every time you wish to notify collision event, just do the following
 
 ```
-colliderSystem.compute()        
+colliderSystem.compute()
 ````
 
 ### How To Add Sphere Collider ?
@@ -124,9 +188,13 @@ To remove the event listener, do the following
 collider.removeEventListener(onColliderEnter)
 ```
 
-The full callback to notify collision event is 
+The full callback to notify collision event is
 
 ```
 collider.addEventListener('colliderEnter', function(otherObject3d, myObject3d, otherCollider, myCollider){  
 })
 ```
+
+TODO
+====
+* a THREEx.ColliderGroup. it is a list of defined shape

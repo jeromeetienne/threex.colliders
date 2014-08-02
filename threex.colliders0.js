@@ -14,14 +14,12 @@ THREEx.ColliderSystem	= function(){
 	 * Add a collider to the system
 	 */
 	this.add	= function(collider){
-		console.assert(collider instanceof THREEx.Collider )
 		this.colliders.push(collider)
 	}
 	/**
 	 * remove a collider from the system
 	 */
 	this.remove	= function(collider){
-		console.assert(collider instanceof THREEx.Collider )
 		var index	= this.colliders.indexOf(collider)
 		if( index === -1 )	return
 		this.colliders.splice(index,1)
@@ -34,7 +32,7 @@ THREEx.ColliderSystem	= function(){
 	/**
 	 * Compute the collision and immediatly notify the listener
 	 */
-	this.notify	= function(){
+	this.compute	= function(){
 		for(var i = 0; i < colliders.length; i++){
 			var collider1	= colliders[i]
 			for(var j = i+1; j < colliders.length; j++){
@@ -123,108 +121,112 @@ THREEx.Collider.idCount	= 0;
 THREEx.ColliderSystem.MicroeventMixin(THREEx.Collider.prototype)
 
 //////////////////////////////////////////////////////////////////////////////////
-//		Comment								//
+//		Shortcuts
 //////////////////////////////////////////////////////////////////////////////////
 
-THREEx.Collider.createFromObject3d	= function(object3d, hint){
-	hint	= hint	|| 'default'
-
- 	if( hint === 'accurate' ){
-		var box3	= new THREE.Box3()
-		var collider	= new THREEx.ColliderBox3(object3d, box3, 'vertices')
-	}else if( hint === 'fast' || hint === 'default' ){
-		// set it from object3d
-		var box3	= new THREE.Box3()
-		box3.setFromObject( object3d );
-
-		// cancel the effect of object3d.position
-		var center	= box3.center()
-		center.sub(object3d.position)
-		// cancel the effect of object3d.scale
-		var size	= box3.size()
-		size.multiply(object3d.scale)
-		// update box3
-		box3.setFromCenterAndSize(center, size)
-		// 
-		var collider	= new THREEx.ColliderBox3(object3d, box3, 'positionScaleOnly')		
+THREEx.Collider.createFromObject3d	= function(object3d){
+	if( object3d.geometry instanceof THREE.SphereGeometry ){
+		object3d.geometry.computeBoundingSphere()
+		var sphere	= object3d.geometry.boundingSphere.clone()
+		var collider	= new THREEx.ColliderSphere(object3d, sphere)
+	}else if( object3d.geometry instanceof THREE.CubeGeometry ){
+		object3d.geometry.computeBoundingBox()
+		var box3	= object3d.geometry.boundingBox.clone()
+		var collider	= new THREEx.ColliderBox3(object3d, box3)
 	}else	console.assert(false)
-
+// TODO add
+// 	var box3	= new THREE.Box3().setFromObject( gameObject.object3d )
+//	var collider	= new THREEx.ColliderBox3(gameObject.object3d, box3)
 	return collider
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//		THREEx.ColliderSphere
+//////////////////////////////////////////////////////////////////////////////////
+THREEx.ColliderSphere	= function(object3d, sphere){
+	THREEx.Collider.call( this, object3d )
+	this.sphere	= sphere
+}
+
+THREEx.ColliderSphere.prototype = Object.create( THREEx.Collider.prototype );
+
+THREEx.ColliderSphere.prototype.collideWith	= function(otherCollider){
+	if( otherCollider instanceof THREEx.ColliderSphere ){
+		return this.collideWithSphere(otherCollider)
+	}else if( otherCollider instanceof THREEx.ColliderBox3 ){
+		return otherCollider.collideWithSphere(this)
+	}else	console.assert(false)
+}
+
+THREEx.ColliderSphere.prototype.collideWithSphere	= function(otherCollider){
+	console.assert( otherCollider instanceof THREEx.ColliderSphere )
+
+	var thisCollider= this
+
+	var thisSphere	= thisCollider.sphere.clone()
+	thisCollider.object3d.updateMatrixWorld( true );
+	thisSphere.applyMatrix4(thisCollider.object3d.matrixWorld)
+
+	var otherSphere	= otherCollider.sphere.clone()
+	otherCollider.object3d.updateMatrixWorld( true );
+	otherSphere.applyMatrix4(otherCollider.object3d.matrixWorld)
+
+	var doCollide	= thisSphere.intersectsSphere(otherSphere)
+	return doCollide ? true : false
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 //		THREEx.ColliderBox3
 //////////////////////////////////////////////////////////////////////////////////
 
-THREEx.ColliderBox3	= function(object3d, shape, updateMode){
-	console.assert(shape instanceof THREE.Box3 )
-
+THREEx.ColliderBox3	= function(object3d, box3){
 	THREEx.Collider.call( this, object3d )
-
-	this.shape	= shape
-	this.updatedBox3= shape.clone()
-
-	this.updateMode	= updateMode	|| 'vertices'
+	this.box3	= box3
 }
 
 THREEx.ColliderBox3.prototype = Object.create( THREEx.Collider.prototype );
 
-//////////////////////////////////////////////////////////////////////////////////
-//		.update
-//////////////////////////////////////////////////////////////////////////////////
-
-THREEx.ColliderBox3.prototype.update	= function(updateMode){
-	// default arguments
-	updateMode	= updateMode	|| this.updateMode
-	var newBox3	= this.shape.clone()
-
-	// init newBox3 based on updateMode
-	if( updateMode === 'vertices' ){
-		// full recomputation of the box3 for each vertice, of geometry, of each child
-		// - it is quite expensive
-		newBox3.setFromObject(this.object3d)
-	}else if( updateMode === 'transform' ){
-		// TODO should i do that .updateMatrixWorld ?
-		this.object3d.updateMatrixWorld( true );
-		newBox3.applyMatrix4(this.object3d.matrixWorld)
-	}else if( updateMode === 'none' ){
-		// may be useful if the object3d never moves
-		// - thus you do a collider.update('vertices') on init and collide.updateMode = 'none'
-	}else if( updateMode === 'positionScaleOnly' ){
-		// get matrix in world coordinate
-		this.object3d.updateMatrixWorld( true );
-		var matrix	= this.object3d.matrixWorld
-		// update scale
-		var scale	= new THREE.Vector3().setFromMatrixScale( matrix );
-		newBox3.min.multiply(scale)
-		newBox3.max.multiply(scale)
-		// update position
-		var position	= new THREE.Vector3().setFromMatrixPosition( matrix );
-		newBox3.translate(position)
-	}else	console.assert(false)
-
-	// save this.updatedBox3
-	this.updatedBox3	= newBox3
-}
-
-//////////////////////////////////////////////////////////////////////////////////
-//		.collideWith
-//////////////////////////////////////////////////////////////////////////////////
-
 THREEx.ColliderBox3.prototype.collideWith	= function(otherCollider){
 	if( otherCollider instanceof THREEx.ColliderBox3 ){
 		return this.collideWithBox3(otherCollider)
+	}else if( otherCollider instanceof THREEx.ColliderSphere ){
+		return this.collideWithSphere(otherCollider)
 	}else	console.assert(false)
 }
 
-THREEx.ColliderBox3.prototype.collideWithBox3	= function(otherCollider){
+
+REEx.ColliderBox3.prototype.collideWithBox3	= function(otherCollider){
 	console.assert( otherCollider instanceof THREEx.ColliderBox3 )
 
 	var thisCollider= this
 
-	var thisBox3	= thisCollider.updatedBox3
-	var otherBox3	= otherCollider.updatedBox3
-	var doCollide	= thisBox3.isIntersectionBox(otherBox3)
+	var thisBox3	= thisCollider.box3.clone()
+	thisCollider.object3d.updateMatrixWorld( true );
+	thisBox3.applyMatrix4(thisCollider.object3d.matrixWorld)
 
+	var otherBox3	= otherCollider.box3.clone()
+	otherCollider.object3d.updateMatrixWorld( true );
+	otherBox3.applyMatrix4(otherCollider.object3d.matrixWorld)
+
+	var doCollide	= thisBox3.isIntersectionBox(otherBox3)
 	return doCollide ? true : false
+}
+
+
+THREEx.ColliderBox3.prototype.collideWithSphere	= function(otherCollider){
+	console.assert( otherCollider instanceof THREEx.ColliderSphere )
+
+	var thisCollider= this
+
+	var thisBox3	= thisCollider.box3.clone()
+	thisCollider.object3d.updateMatrixWorld( true );
+	thisBox3.applyMatrix4(thisCollider.object3d.matrixWorld)
+
+	var otherSphere	= otherCollider.sphere.clone()
+	otherCollider.object3d.updateMatrixWorld( true );
+	otherSphere.applyMatrix4(otherCollider.object3d.matrixWorld)
+
+	var distanceTo	= thisBox3.distanceToPoint(otherSphere.center)
+	var doCollide	= distanceTo <= otherSphere.radius ? true : false
+	return doCollide
 }

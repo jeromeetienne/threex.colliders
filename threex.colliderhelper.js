@@ -11,8 +11,9 @@ THREEx.ColliderHelper	= function( collider ){
 //		THREEx.ColliderBox3Helper
 //////////////////////////////////////////////////////////////////////////////////
 THREEx.ColliderBox3Helper	= function( collider ){
+	// check arguments
 	console.assert( collider instanceof THREEx.ColliderBox3 )
-	// there are 2 shapes for collider
+	// setup geometry/material
 	var geometry	= new THREE.BoxGeometry(1,1,1)
 	var material	= new THREE.MeshBasicMaterial({
 		wireframe	: true
@@ -22,7 +23,7 @@ THREEx.ColliderBox3Helper	= function( collider ){
 	THREE.Mesh.call(this, geometry, material)
 
 	/**
-	 * make the helper match the collider shape
+	 * make the helper match the collider shape. used the .updatedBox3
 	 */
 	this.update	= function(){
 		var box3	= collider.updatedBox3

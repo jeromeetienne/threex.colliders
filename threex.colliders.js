@@ -220,11 +220,7 @@ THREEx.ColliderBox3.prototype.collideWith	= function(otherCollider){
 THREEx.ColliderBox3.prototype.collideWithBox3	= function(otherCollider){
 	console.assert( otherCollider instanceof THREEx.ColliderBox3 )
 
-	var thisCollider= this
-
-	var thisBox3	= thisCollider.updatedBox3
-	var otherBox3	= otherCollider.updatedBox3
-	var doCollide	= thisBox3.isIntersectionBox(otherBox3)
+	var doCollide	= this.updatedBox3.isIntersectionBox(otherCollider.updatedBox3)
 
 	return doCollide ? true : false
 }

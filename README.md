@@ -1,3 +1,30 @@
+# Rest of the work
+* what about the demo ?
+        * well it is supposed to show a basic.html with simple yet comprehensible usage
+        * it will show the possibilities of the extensions
+        * it is possible to choose various THREE.Geometry for each shape
+        * on contact the object3d will react as visual feedback for the user
+        * each collider expose all the .sync* variables
+        * provide some presets
+                * make them as educative as possible
+        * one object toward the other in X, with a light delta in Y
+        * a slider to go back in time would make it more educative
+* test if it works in threex.gameeditor
+    - do some collision
+    - like shoot leaving map
+    - like shoot onColliderEnter planet, then reset planet
+    - if player onColliderEnter planet, then reset the player and planet
+    - see if those works. if so, document this as definitive version
+* rename every thing ala unity now ? NO GO
+    - is yours better ? 
+    - better in the absolute ? absolutly clear
+    - or better for people who know unity ?
+    - are unity ones real bad ? 
+    - http://unity3d.com/learn/tutorials/modules/beginner/physics/colliders-as-triggers
+    - or call all that threex.triggerzones ?
+        + not a bad name, and all from unity so already well known by users
+        + not that bad, you can always do it later tho
+
 # about refactor
 * remove the spheres
         * keep the fork mechanism with inheritance
@@ -17,16 +44,6 @@
         * do a pass of .sync on all colliders
         * then call the collideWith
                 * "with new api, .updateMatrixWorld is now O(n) instead of O(n*sqrt(n)). fun :)"
-* what about the demo ?
-        * well it is supposed to show a basic.html with simple yet comprehensible usage
-        * it will show the possibilities of the extensions
-        * it is possible to choose various THREE.Geometry for each shape
-        * on contact the object3d will react as visual feedback for the user
-        * each collider expose all the .sync* variables
-        * provide some presets
-                * make them as educative as possible
-        * one object toward the other in X, with a light delta in Y
-        * a slider to go back in time would make it more educative
 * How to do the helpers ? 
     - from three.js definition
         + an helper is a THREE.Object3D attached at the scene itself or attached to the helped object3d. check in editor
@@ -41,6 +58,8 @@
     - worst thing which can happen ?
         - the collider helper is 1 frame behind the collider itself.
         - we can leave with that
+
+
 
 ## More about helpers
 - from three.js definition

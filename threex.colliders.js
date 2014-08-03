@@ -27,13 +27,38 @@ THREEx.ColliderSystem	= function(){
 		var index	= this.colliders.indexOf(collider)
 		if( index === -1 )	console.warn('try to remove non present collider')
 		if( index === -1 )	return
+		// remove the collider
 		this.colliders.splice(index,1)
+		// remove pending states for removed collider
+		Object.keys(states).forEach(function(stateLabel){
+			// console.log('remove pending state', stateLabel)
+			// test if this removed keep any states
+			var toRemove	= stateLabel.match('-'+collider.id) || stateLabel.match(collider.id+'-')
+			// update states
+			if( toRemove ){
+				// console.log('state should be removed', stateLabel)
+				delete states[stateLabel]
+			}
+		})
 	}
+
+/**
+ * @TODO to rename .states into collidings
+ */
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Comment								//
 	//////////////////////////////////////////////////////////////////////////////////
 	var states	= {}
+	this._states	= states
+	function getStateLabel(collider1, collider2){
+		if( collider1.id < collider2.id )
+			var stateLabel	= collider1.id + '-' + collider2.id
+		else
+			var stateLabel	= collider2.id + '-' + collider1.id
+		return stateLabel
+
+	}
 	/**
 	 * Compute the collision and immediatly notify the listener
 	 */
@@ -45,7 +70,7 @@ THREEx.ColliderSystem	= function(){
 				// stay if they do collide
 				var doCollide	= collider1.collideWith(collider2)
 				// get previous state
-				var stateLabel	= collider1.id + '-' + collider2.id
+				var stateLabel	= getStateLabel(collider1, collider2)
 				var stateExisted= states[stateLabel] ? true : false
 				// process depending do Collide
 				if( doCollide ){
@@ -55,8 +80,9 @@ THREEx.ColliderSystem	= function(){
 					}else{
 						dispatchEvent(collider1, collider2, 'contactEnter')
 					}
+				// console.log('set state', stateLabel)
 					// update states
-					states[stateLabel]	= true
+					states[stateLabel]	= 'dummy'
 				}else{
 					// notify proper events
 					if( stateExisted ){
@@ -67,6 +93,7 @@ THREEx.ColliderSystem	= function(){
 				}
 			}
 		}
+		// console.log('post notify states', Object.keys(states).length)
 
 		function dispatchEvent(collider1, collider2, eventName){
 			// console.log('dispatchEvent', eventName)

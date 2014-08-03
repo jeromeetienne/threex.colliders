@@ -23,6 +23,7 @@ THREEx.ColliderSystem	= function(){
 	this.remove	= function(collider){
 		console.assert(collider instanceof THREEx.Collider )
 		var index	= this.colliders.indexOf(collider)
+		if( index === -1 )	console.warn('try to remove non present collider')
 		if( index === -1 )	return
 		this.colliders.splice(index,1)
 	}
@@ -48,16 +49,16 @@ THREEx.ColliderSystem	= function(){
 				if( doCollide ){
 					// notify proper events
 					if( stateExisted === true ){
-						dispatchEvent(collider1, collider2, 'collideStay')
+						dispatchEvent(collider1, collider2, 'contactStay')
 					}else{
-						dispatchEvent(collider1, collider2, 'collideEnter')
+						dispatchEvent(collider1, collider2, 'contactEnter')
 					}
 					// update states
 					states[stateLabel]	= true
 				}else{
 					// notify proper events
 					if( stateExisted ){
-						dispatchEvent(collider1, collider2, 'collideExit')
+						dispatchEvent(collider1, collider2, 'contactExit')
 					}
 					// update states
 					delete states[stateLabel]
@@ -66,10 +67,11 @@ THREEx.ColliderSystem	= function(){
 		}
 
 		function dispatchEvent(collider1, collider2, eventName){
+			// console.log('dispatchEvent', eventName)
 			// send event to collider1
-			collider1.dispatchEvent(eventName, collider2.object3d, collider1.object3d, collider2, collider1)
+			collider1.dispatchEvent(eventName, collider2, collider1)
 			// send event to collider2
-			collider2.dispatchEvent(eventName, collider1.object3d, collider2.object3d, collider1, collider2)
+			collider2.dispatchEvent(eventName, collider1, collider2)
 		}
 	}
 
@@ -116,6 +118,7 @@ THREEx.ColliderSystem.MicroeventMixin	= function(destObj){
 THREEx.Collider	= function(object3d){
 	this.id		= THREEx.Collider.idCount++
 	this.object3d	= object3d
+	this.userData	= {}
 }
 
 THREEx.Collider.idCount	= 0;
@@ -142,7 +145,7 @@ THREEx.Collider.createFromObject3d	= function(object3d, hint){
 		center.sub(object3d.position)
 		// cancel the effect of object3d.scale
 		var size	= box3.size()
-		size.multiply(object3d.scale)
+		size.divide(object3d.scale)
 		// update box3
 		box3.setFromCenterAndSize(center, size)
 		// 

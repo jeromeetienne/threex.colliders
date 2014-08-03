@@ -51,7 +51,7 @@
 		var angle	= 0;
 		onRenderFcts.push(function(delta){
 			angle		+= Math.PI*2*delta * 0.1
-			mesh.scale.y	= 1.0+ 0.5*Math.sin(angle)
+			mesh.scale.y	= 0.5+ 0.3*Math.sin(angle)
 		})
 	})()
 	// compute collider shape from mesh.geometry.vertices
@@ -64,12 +64,12 @@
 		collider.update()
 	})
 
-	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
-		console.log('collideEnter', myObject3d.name, 'with', otherObject3d.name)
+	collider.addEventListener('contactEnter', function(otherCollider){
+		console.log('contactEnter', collider.object3d.name, 'with', otherCollider.object3d.name)
 		helper.material.color.set('red')
 	})
-	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
-		console.log('collideExit', myObject3d.name, 'with', otherObject3d.name)
+	collider.addEventListener('contactExit', function(otherCollider){
+		console.log('contactExit', collider.object3d.name, 'with', otherCollider.object3d.name)
 		helper.material.color.set('green')
 	})
 
@@ -122,12 +122,13 @@
 		collider.update()
 	})
 
-	collider.addEventListener('collideEnter', function(otherObject3d, myObject3d){
-		console.log('collideEnter', myObject3d.name, 'with', otherObject3d.name)
+
+	collider.addEventListener('contactEnter', function(otherCollider){
+		console.log('contactEnter', collider.object3d.name, 'with', otherCollider.object3d.name)
 		helper.material.color.set('red')
 	})
-	collider.addEventListener('collideExit', function(otherObject3d, myObject3d){
-		console.log('collideExit', myObject3d.name, 'with', otherObject3d.name)
+	collider.addEventListener('contactExit', function(otherCollider){
+		console.log('contactExit', collider.object3d.name, 'with', otherCollider.object3d.name)
 		helper.material.color.set('green')
 	})
 

@@ -10,6 +10,7 @@ THREEx.ColliderSystem	= function(){
 	//////////////////////////////////////////////////////////////////////////////////
 	this.colliders	= []
 	var colliders	= this.colliders
+
 	/**
 	 * Add a collider to the system
 	 */
@@ -17,6 +18,7 @@ THREEx.ColliderSystem	= function(){
 		console.assert(collider instanceof THREEx.Collider )
 		this.colliders.push(collider)
 	}
+
 	/**
 	 * remove a collider from the system
 	 */
@@ -195,7 +197,7 @@ THREEx.ColliderBox3.prototype.update	= function(updateMode){
 		// - thus you do a collider.update('vertices') on init and collide.updateMode = 'none'
 	}else if( updateMode === 'positionScaleOnly' ){
 		// get matrix in world coordinate
-		this.object3d.updateMatrixWorld( true );
+		this.object3d.updateMatrixWorld( true )
 		var matrix	= this.object3d.matrixWorld
 		// update scale
 		var scale	= new THREE.Vector3().setFromMatrixScale( matrix );

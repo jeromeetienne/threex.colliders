@@ -80,7 +80,6 @@ THREEx.ColliderSystem	= function(){
 					}else{
 						dispatchEvent(collider1, collider2, 'contactEnter')
 					}
-				// console.log('set state', stateLabel)
 					// update states
 					states[stateLabel]	= 'dummy'
 				}else{

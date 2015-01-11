@@ -1,93 +1,10 @@
-# Rest of the work
-* what about the demo ?
-        * well it is supposed to show a basic.html with simple yet comprehensible usage
-        * it will show the possibilities of the extensions
-        * it is possible to choose various THREE.Geometry for each shape
-        * on contact the object3d will react as visual feedback for the user
-        * each collider expose all the .sync* variables
-        * provide some presets
-                * make them as educative as possible
-        * one object toward the other in X, with a light delta in Y
-        * a slider to go back in time would make it more educative
-* test if it works in threex.gameeditor
-    - do some collision
-    - like shoot leaving map
-    - like shoot onColliderEnter planet, then reset planet
-    - if player onColliderEnter planet, then reset the player and planet
-    - see if those works. if so, document this as definitive version
-* rename every thing ala unity now ? NO GO
-    - is yours better ? 
-    - better in the absolute ? absolutly clear
-    - or better for people who know unity ?
-    - are unity ones real bad ? 
-    - http://unity3d.com/learn/tutorials/modules/beginner/physics/colliders-as-triggers
-    - or call all that threex.triggerzones ?
-        + not a bad name, and all from unity so already well known by users
-        + not that bad, you can always do it later tho
-
-# about refactor
-* remove the spheres
-        * keep the fork mechanism with inheritance
-        * but remove all spheres
-* THREEx.Collider
-        * .object3d
-* THREEx.ColliderBox3d inherit from THREEx.Collider
-        * .shape
-        * .syncPosition = true/false
-        * .syncRotation = true/false
-        * .syncScale = true/false
-        * .sync() to sync appropriatly
-                * update the .lastSyncedShape
-        * .collideWith
-                * it is done between .lastSyncedShape
-* in THREEx.ColliderSystem.compute()
-        * do a pass of .sync on all colliders
-        * then call the collideWith
-                * "with new api, .updateMatrixWorld is now O(n) instead of O(n*sqrt(n)). fun :)"
-* How to do the helpers ? 
-    - from three.js definition
-        + an helper is a THREE.Object3D attached at the scene itself or attached to the helped object3d. check in editor
-        + it has a .update() function which make the helper in sync with object3d 
-    - in our case, it will display a AABB
-    - keep the type fork in the threex.colliderhelpers.js
-    - remove the sphere tho
-    - it display the .lastSyncedShape
-    - so to be in sync, the helper.update() MUST be called after collider.sync()
-        + maybe to do a ```helper.update(forceSync)```
-        + with forceSync which default to false
-    - worst thing which can happen ?
-        - the collider helper is 1 frame behind the collider itself.
-        - we can leave with that
-
-
-
-## More about helpers
-- from three.js definition
-    + an helper is a THREE.Object3D attached at the scene itself or attached to the helped object3d. check in editor
-    + it has a .update() function which make the helper in sync with object3d 
-- in our case, it will display a AABB
-    + So a Geometry.Box3(1,1,1)
-    + the size update will be done at the helper.scale level
-    + the center of collider.shape box3 is the helper.position
-- keep the type fork in the threex.colliderhelpers.js
-- remove the sphere tho
-- it display the .lastSyncedShape
-- so to be in sync, the helper.update() MUST be called after collider.sync()
-    + maybe to do a ```helper.update(forceSync)```
-    + with forceSync which default to false
-- worst thing which can happen ?
-    - the collider helper is 1 frame behind the collider itself.
-    - we can leave with that
-
-
-
 threex.colliders
 =============
 
-threex.coloradjust is a
+threex.colliders is a
 [threex game extension for three.js](http://www.threejsgames.com/extensions/).
-It provides an collider system. Each ```THREE.Object3D``` may be attached to a ```THREEx.Collider``` for Sphere or AABB.
-Then you add those in a ```THREEx.ColliderSystem``` and ```.compute()``` all the collisions at this time.
+It provides an collider system. Each ```THREE.Object3D``` may be attached to a ```THREEx.Collider``` for AABB. Sphere will be added when time allow.
+Then you add those in a ```THREEx.ColliderSystem``` and ```.notify()``` all the collisions at this time.
 When 2 colliders start colliding with each other, the event 'collideEnter' is sent to each listener. When those colliders keep colliding, the event 'collideStay' is sent. When those colliders are no more colliding, the event sent is 'collideExit'.
 
 Show Don't Tell
@@ -95,9 +12,6 @@ Show Don't Tell
 * [examples/basic.html](http://jeromeetienne.github.io/threex.colliders/examples/basic.html)
 \[[view source](https://github.com/jeromeetienne/threex.colliders/blob/master/examples/basic.html)\] :
 It shows a basic usage of this extension.
-* [examples/demo.html](http://jeromeetienne.github.io/threex.colliders/examples/demo.html)
-\[[view source](https://github.com/jeromeetienne/threex.colliders/blob/master/examples/demo.html)\] :
-It shows a more elaborate usage of this extension.
 
 A Screenshot
 ============
@@ -130,31 +44,8 @@ var colliderSystem  = new THREEx.ColliderSystem()
 Every time you wish to notify collision event, just do the following
 
 ```
-colliderSystem.compute()
+colliderSystem.notify()
 ````
-
-### How To Add Sphere Collider ?
-
-First you get THREE.Sphere.
-Say you get the default bounding sphere of the object geometry
-
-```
-var sphere  = object3d.geometry.boundingSphere.clone()
-```
-
-Then from it, you create the collider
-
-```
-var collider    = new THREEx.ColliderSphere(object3d, sphere)
-```
-
-Dont forget, to add collider in the system
-
-```
-colliderSystem.add(collider)
-```
-
-And you are done! :)
 
 ### How To Add Box3 Collider ? (or call it [AABB](http://en.wikipedia.org/wiki/Axis-aligned_bounding_box#Axis-aligned_minimum_bounding_box))
 
@@ -216,4 +107,5 @@ collider.addEventListener('colliderEnter', function(otherObject3d, myObject3d, o
 
 TODO
 ====
-* a THREEx.ColliderGroup. it is a list of defined shape
+* a THREEx.ColliderGroup. it is a group of other colliders shape
+* a collider for sphere, oriented bounding box etc...

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<script>
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Build data
+	//////////////////////////////////////////////////////////////////////////////////
+	var listSrc	= []
+	var listDst	= []
+
+	listSrc.push('element1')
+	listSrc.push('element2')
+
+	listDst.push('element1')
+	// listDst.push('element2')
+	listDst.push('element3')
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Generate delta
+	//////////////////////////////////////////////////////////////////////////////////
+	// go thru listDst to find new element
+	for( var i = 0; i < listDst.length; i++ ){
+		var element	= listDst[i]
+		var isNew	= contain(listSrc, element)
+		if( isNew === true )	continue
+
+		console.log('ADD ', element)
+	}
+
+	// go thru listSrc to find new element
+	for( var i = 0; i < listSrc.length; i++ ){
+		var element	= listSrc[i]
+		var isStillThere= contain(listDst, element)
+		if( isStillThere === true )	continue
+
+		console.log('REMOVE ', element)
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
+	function contain(list, element){
+		for( var i = 0; i < list.length; i++ ){
+			if( list[i] === element ){
+				return true
+			}
+		}
+		return false
+	}
+
+</script>

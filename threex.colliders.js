@@ -13,6 +13,8 @@ THREEx.ColliderSystem	= function(){
 
 	/**
 	 * Add a collider to the system
+	 *
+	 * @param {THREEx.Collider} collider - the collider to add
 	 */
 	this.add	= function(collider){
 		console.assert(collider instanceof THREEx.Collider )
@@ -21,6 +23,7 @@ THREEx.ColliderSystem	= function(){
 
 	/**
 	 * remove a collider from the system
+	 * @param {THREEx.Collider} collider - the collider to remove
 	 */
 	this.remove	= function(collider){
 		console.assert(collider instanceof THREEx.Collider )
@@ -40,6 +43,47 @@ THREEx.ColliderSystem	= function(){
 				delete states[stateLabel]
 			}
 		})
+	}
+
+	this.syncWithColliders	= function(collidersDst){
+		var collidersSrc= this.colliders
+
+		// go thru collidersDst to find new collider
+		for( var i = 0; i < collidersDst.length; i++ ){
+			var collider	= collidersDst[i]
+			var isNew	= isPresent(collidersSrc, collider)
+			if( isNew === true )	continue
+
+			console.log('ADD ', collider)
+			this.add(collider)
+		}
+
+		// go thru collidersSrc to find new collider
+		for( var i = 0; i < collidersSrc.length; i++ ){
+			var collider	= collidersSrc[i]
+			var isStillThere= isPresent(collidersDst, collider)
+			if( isStillThere === true )	continue
+
+			console.log('REMOVE ', collider)
+			this.remove(collider)
+		}
+
+
+		return
+		/**
+		 * test if the 
+		 * @param  {[type]} list    [description]
+		 * @param  {[type]} collider [description]
+		 * @return {[type]}         [description]
+		 */
+		function isPresent(colliders, collider){
+			for( var i = 0; i < colliders.length; i++ ){
+				if( colliders[i] === collider ){
+					return true
+				}
+			}
+			return false
+		}
 	}
 
 /**
@@ -114,6 +158,8 @@ THREEx.ColliderSystem	= function(){
 
 /**
  * microevents.js - https://github.com/jeromeetienne/microevent.js
+ * 
+ * @param {Object} destObj - the destination object
 */
 THREEx.ColliderSystem.MicroeventMixin	= function(destObj){
 	destObj.addEventListener	= function(event, fct){
@@ -143,6 +189,11 @@ THREEx.ColliderSystem.MicroeventMixin	= function(destObj){
 //		THREEx.Collider
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * collider base class
+ * 
+ * @param {THREE.Object3D} object3d - the object
+ */
 THREEx.Collider	= function(object3d){
 	this.id		= THREEx.Collider.idCount++
 	this.object3d	= object3d
@@ -157,6 +208,13 @@ THREEx.ColliderSystem.MicroeventMixin(THREEx.Collider.prototype)
 //		Comment								//
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Easy create a collider from a object3d
+ * 
+ * @param  {THREE.Object3D}	object3d	- the object
+ * @param  {String=}		hint		- hint on how to create it
+ * @return {THREE.Collider}			- the create collider
+ */
 THREEx.Collider.createFromObject3d	= function(object3d, hint){
 	hint	= hint	|| 'default'
 

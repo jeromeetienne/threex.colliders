@@ -1,5 +1,8 @@
 * to a nice visual test demo
 
+### File hierachy
+threex.colliderSystem.js
+threex.collider.js
 
 
 ### What need to be tested

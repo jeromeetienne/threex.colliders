@@ -4,8 +4,8 @@ threex.colliders
 threex.colliders is a
 [threex game extension for three.js](http://www.threejsgames.com/extensions/).
 It provides an collider system. Each ```THREE.Object3D``` may be attached to a ```THREEx.Collider``` for AABB. Sphere will be added when time allow.
-Then you add those in a ```THREEx.ColliderSystem``` and ```.notify()``` all the collisions at this time.
-When 2 colliders start colliding with each other, the event 'collideEnter' is sent to each listener. When those colliders keep colliding, the event 'collideStay' is sent. When those colliders are no more colliding, the event sent is 'collideExit'.
+Then you add those in a ```THREEx.ColliderSystem``` and ```.computeAndNotify()``` all the collisions at this time.
+When 2 colliders start colliding with each other, the event 'contactEnter' is sent to each listener. When those colliders keep colliding, the event 'contactStay' is sent. When those colliders are no more colliding, the event sent is 'contactExit'.
 
 Show Don't Tell
 ===============
@@ -41,10 +41,10 @@ First you need to create a ```THREEx.ColliderSystem```. It gonna handle the whol
 var colliderSystem  = new THREEx.ColliderSystem()
 ```
 
-Every time you wish to notify collision event, just do the following
+Every time you wish to compute collision and notify associated events among colliders, just do the following
 
 ```
-colliderSystem.notify()
+colliderSystem.computeAndNotify(colliders)
 ````
 
 ### How To Add Box3 Collider ? (or call it [AABB](http://en.wikipedia.org/wiki/Axis-aligned_bounding_box#Axis-aligned_minimum_bounding_box))
@@ -80,15 +80,16 @@ var collider    = THREEx.Collider.createFromObject3d(object3d)
 ### How to receive event from colliders ?
 
 There are 3 kind of events
-    - **collideEnter** which is triggered when an object start colliding with another
-    - **collideExit** which is notified when the object is no more colliding with another
-    - **collideStay** which is notified when the object is still colliding with another
+    - **contactEnter(otherCollider)** which is triggered when an object start colliding with another
+    - **contactExit(otherCollider)** which is notified when the object is no more colliding with another
+    - **contactStay(otherCollider)** which is notified when the object is still colliding with another
+    - **contactRemoved(otherColliderId)** which is notified when the other collider has been removed
 
 To start listening on a event, just do
 
 ```
-var onCollideEnter  = collider.addEventListener('colliderEnter', function(otherObject3d, myObject3d){
-    console.log('contactEnter', myObject3d.name, 'with', otherObject3d.name)
+var onCollideEnter  = collider.addEventListener('contactEnter', function(otherCollider){
+    console.log('contactEnter with', otherCollider.id)
 })
 ```
 
@@ -96,13 +97,6 @@ To remove the event listener, do the following
 
 ```
 collider.removeEventListener(onColliderEnter)
-```
-
-The full callback to notify collision event is
-
-```
-collider.addEventListener('colliderEnter', function(otherObject3d, myObject3d, otherCollider, myCollider){  
-})
 ```
 
 TODO

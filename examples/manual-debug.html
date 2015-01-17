@@ -47,7 +47,9 @@
 	//		Comment								//
 	//////////////////////////////////////////////////////////////////////////////////
 	var colliderSystem	= new THREEx.ColliderSystem()
+var updateDone	= false
 	onRenderFcts.push(function(){
+if( updateDone === true )	return
 		// build colliders 
 		// - here you use your own data structure, threex.colliders.js doesnt care
 		var colliders	= []
@@ -59,6 +61,8 @@
 		
 		// update the colliderSystem
 		colliderSystem.computeAndNotify(colliders)
+console.log('update done, wont update colliderSystem anymore')
+updateDone	= true
 	})
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -66,21 +70,21 @@
 	//////////////////////////////////////////////////////////////////////////////////
 	;(function(){
 		// without objectReuseEnabled
-		buildRow(new THREE.Vector3(-3.5, 1.2,0), -1.5,-0.5, true)
-		buildRow(new THREE.Vector3( 0.0, 1.2,0), -1.5, 1.5, true)
+		// buildRow(new THREE.Vector3(-3.5, 1.2,0), -1.5,-0.5, true)
+		// buildRow(new THREE.Vector3( 0.0, 1.2,0), -1.5, 1.5, true)
 		buildRow(new THREE.Vector3( 3.5, 1.2,0),  0.5, 1.5, true)
 
 		// without objectReuseEnabled to trigger contactRemoved
-		buildRow(new THREE.Vector3(-3.5, -1.2,0), -1.5,-0.5, false)
-		buildRow(new THREE.Vector3( 0.0, -1.2,0), -1.5, 1.5, false)
-		buildRow(new THREE.Vector3( 3.5, -1.2,0),  0.5, 1.5, false)
+		// buildRow(new THREE.Vector3(-3.5, -1.2,0), -1.5,-0.5, false)
+		// buildRow(new THREE.Vector3( 0.0, -1.2,0), -1.5, 1.5, false)
+		// buildRow(new THREE.Vector3( 3.5, -1.2,0),  0.5, 1.5, false)
 		return
 		function buildRow(position, startX, endX, objectReuseEnabled){
 			// build static object
 			var object3d	= createObject3d()
 			addObject3D(object3d)
 			object3d.position.copy(position)
-
+return
 			// build moving object
 			var object3d	= createObject3d()
 			object3d.position.copy(position)
@@ -140,10 +144,13 @@
 
 		// update the helper
 		var helper	= object3d.userData.helper
-		helper.update()	
+		helper.update()
 	}
 	
 	function addObject3D(object3d){
+// TODO is that needed ?
+		// do the initial update
+		updateObject3D(object3d, 0)
 
 		// add the object to the scene
 		scene.add(object3d)
@@ -200,19 +207,22 @@
 		//		event binding for colliders
 		//////////////////////////////////////////////////////////////////////////////////
 		collider.addEventListener('contactEnter', function(otherCollider){
+			console.log('contactEnter received by', collider.id, 'from', otherCollider.id )
 			helper.material.color.set('red')
 			helper.material.wireframeLinewidth = 1
 		})
 		collider.addEventListener('contactExit', function(otherCollider){
+			console.log('contactExit received by', collider.id, 'from', otherCollider.id )
 			helper.material.color.set('green')
 			helper.material.wireframeLinewidth = 1
 		})
 		collider.addEventListener('contactRemoved', function(otherColliderId){
+			console.log('contactRemoved received by', collider.id, 'from', otherCollider.id )
 			helper.material.color.set('blue')
 			helper.material.wireframeLinewidth = 1
 		})
-
 		collider.addEventListener('contactStay', function(otherCollider){
+			// console.log('contactEnter received by', collider.id, 'from', otherCollider.id )
 			helper.material.wireframeLinewidth = 3
 		})
 

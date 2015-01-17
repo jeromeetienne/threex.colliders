@@ -5,22 +5,23 @@
 <script src='../threex.colliders.js'></script>
 <script src='../threex.colliderhelper.js'></script>
 <body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'>
-
-<style>
-	#info {
-		position: absolute;
-		color: white;
-	}
-	#info li {
-		list-style-type: none; 
-	}
-</style>
 <div id='info'>
+	<style>
+		#info {
+			position: absolute;
+			color: white;
+		}
+		#info li {
+			list-style-type: none; 
+		}
+	</style>
 	<ul>
-		<li>Event <strong>initial state</strong> : green</li>
-		<li>Event <strong>contactEnter</strong> : goto red</li>
-		<li>Event <strong>contactExit</strong> : goto green</li>
-		<li>Event <strong>contactRemoved</strong> : goto blue</li>
+		<li>Received event change the object's bounding box:</li>
+		<li>&nbsp;</li>
+		<li>Event <strong>initial state</strong> : set color to green</li>
+		<li>Event <strong>contactEnter</strong> : set color to red</li>
+		<li>Event <strong>contactExit</strong> : set color to green</li>
+		<li>Event <strong>contactRemoved</strong> : set color to blue</li>
 		<li>Event <strong>contactStay</strong> : increase line width</li>
 	</ul>
 </div><script>
@@ -178,39 +179,25 @@
 		var material	= new THREE.MeshNormalMaterial();
 		var object3d	= new THREE.Mesh( geometry, material );
 
-
 		// set initial velocity
-		var velocity	= new THREE.Vector3()
-		object3d.userData.velocity	= velocity
-
-		// // set initial velocity
-		// velocity.x	= Math.random()*2 - 1
-		// velocity.y	= Math.random()*2 - 1
-		// velocity.z	= Math.random()*2 - 1
-		// velocity.setLength(2 + Math.random())
-
-		// // set initial position
-		// object3d.position.x	= (Math.random()*2 - 1) * 2
-		// object3d.position.y	= (Math.random()*2 - 1) * 2
-		// object3d.position.z	= (Math.random()*2 - 1) * 2
-
-		// // init initial rotation
-		// object3d.rotation.x	= Math.random() * Math.PI
-		// object3d.rotation.y	= Math.random() * Math.PI
-		// object3d.rotation.z	= Math.random() * Math.PI
+		object3d.userData.velocity	= new THREE.Vector3()
 
 		//////////////////////////////////////////////////////////////////////////////////
 		//		Comment								//
 		//////////////////////////////////////////////////////////////////////////////////
 
-		// compute collider shape from object3d.geometry.vertices
-		var box3	= new THREE.Box3()
-		box3.setFromPoints( object3d.geometry.vertices );
-
 		// init collider
-		var collider	= new THREEx.ColliderBox3(object3d, box3)
+		var collider	= THREEx.Collider.createFromObject3d(object3d)
 		object3d.userData.collider	= collider
 
+		// init collider helper
+		var helper	= new THREEx.ColliderHelper(collider)
+		object3d.userData.helper	= helper
+		helper.material.color.set('green')
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//		event binding for colliders
+		//////////////////////////////////////////////////////////////////////////////////
 		collider.addEventListener('contactEnter', function(otherCollider){
 			helper.material.color.set('red')
 			helper.material.wireframeLinewidth = 1
@@ -228,13 +215,7 @@
 			helper.material.wireframeLinewidth = 3
 		})
 
-		// init collider helper
-		var helper	= new THREEx.ColliderHelper(collider)
-		object3d.userData.helper	= helper
-		helper.material.color.set('green')
-
-		// helper.material.wireframeLinewidth = 3
-
+		// return the just built object
 		return object3d
 	}
 

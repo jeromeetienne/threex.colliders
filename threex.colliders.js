@@ -226,7 +226,7 @@ THREEx.Collider.createFromObject3d	= function(object3d, hint){
 		size.divide(object3d.scale)
 		// update box3
 		box3.setFromCenterAndSize(center, size)
-		// 
+		// actually create the collider
 		var collider	= new THREEx.ColliderBox3(object3d, box3, 'positionScaleOnly')		
 	}else	console.assert(false)
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <script src='http://betterjs.org/build/better.js'></script>
 <script src='vendor/three.js/build/three.min.js'></script>
-<script src='../threex.colliders.js'></script>
+<script src='../threex.colliders2.js'></script>
 <script src='../threex.colliderhelper.js'></script>
 <body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'><script>
 	var renderer	= new THREE.WebGLRenderer();
@@ -17,8 +17,11 @@
 	//		Comment								//
 	//////////////////////////////////////////////////////////////////////////////////
 	var colliderSystem	= new THREEx.ColliderSystem()
+
+
+	var colliders	= []
 	onRenderFcts.push(function(){
-		colliderSystem.notify()	
+		colliderSystem.computeAndNotify(colliders)	
 	})
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +29,7 @@
 	//////////////////////////////////////////////////////////////////////////////////	
 ;(function(){
 	var geometry	= new THREE.SphereGeometry( 0.9, 32, 16);
-	var geometry	= new THREE.BoxGeometry(1,1,1);
+	// var geometry	= new THREE.BoxGeometry(1,1,1);
 	var material	= new THREE.MeshNormalMaterial();
 	var mesh	= new THREE.Mesh( geometry, material );
 	mesh.name	= 'meshA'
@@ -61,7 +64,8 @@
 	box3.setFromPoints( mesh.geometry.vertices );
 	// init collider
 	var collider	= new THREEx.ColliderBox3(mesh, box3)
-	colliderSystem.add(collider)
+	colliders.push(collider)
+	// colliderSystem.add(collider)
 	onRenderFcts.push(function(delta){
 		collider.update()
 	})
@@ -122,7 +126,8 @@
 
 	// init collider
 	var collider	= THREEx.Collider.createFromObject3d(mesh)
-	colliderSystem.add(collider)
+	colliders.push(collider)
+	// colliderSystem.add(collider)
 	onRenderFcts.push(function(delta){
 		collider.update()
 	})

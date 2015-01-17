@@ -2,9 +2,26 @@
 <script src='http://betterjs.org/build/better.js'></script>
 <script src='vendor/three.js/build/three.min.js'></script>
 <script src='vendor/three.js/examples/js/controls/OrbitControls.js'></script>
-<script src='../threex.colliders.js'></script>
+<script src='../threex.colliders2.js'></script>
 <script src='../threex.colliderhelper.js'></script>
 <body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'><script>
+var THREEx	= THREEx	|| {}
+THREEx.CollidingObject3d	= function(object3d){
+	var collidingObject	= object3d	|| this
+	// call parent ctor
+	if( object3d === undefined )	THREE.Object3D.apply(this)
+
+	return collidingObject
+}
+
+THREEx.CollidingObject3d.prototype = Object.create( THREE.Object3D.prototype );
+
+THREEx.CollidingObject3d.prototype.update = function(delta){
+	var object3d	= this
+	updateObject3D(object3d, delta)
+}
+
+</script><script>
 	var renderer	= new THREE.WebGLRenderer();
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.body.appendChild( renderer.domElement );
@@ -57,55 +74,68 @@
 	//////////////////////////////////////////////////////////////////////////////////
 	var colliderSystem	= new THREEx.ColliderSystem()
 	onRenderFcts.push(function(){
-		colliderSystem.notify()	
+		// build colliders 
+		// - here you use your own data structure, threex.colliders.js doesnt care
+		var colliders	= []
+		scene.traverse(function(object3d){
+			var collider	= object3d.userData.collider
+			if( collider === undefined )	return
+			colliders.push( collider )
+		})
+		
+		// update the colliderSystem
+		colliderSystem.compute(colliders)
 	})
 
-/*
- * ## Do an example
- * - what this example will do
- * - it has to stress the .syncWithColliders()
- * - so you need to add/remove objects all the time
- * - you have to be as close as possible to editor case
- * - so you got a list of mesh, each of them contains a collider
- * - and they keep being added removed
- * - TEST if both list are equal after the .syncWithColliders()
- * - each mesh got a random position
- * - each mesh got a random velocity with normalize length
- * - if a mesh go out of a box, remove it and spawn another one
- *   - make a large collider
- */
+	scene.addEventListener('objectAdded', function(event){
+		var object3d	= event.object
+		// add the helper
+		var helper	= object3d.userData.helper
+		if( helper )	scene.add(helper)
+	})
+	
+	scene.addEventListener('objectRemoved', function(event){
+		var object3d	= event.object
+		// add the helper
+		var helper	= object3d.userData.helper
+		if( helper )	scene.remove(helper)
+	})
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Comment								//
 	//////////////////////////////////////////////////////////////////////////////////
 	for(var i = 0; i < 30; i++){
 		var object3d	= createObject3d()
-		addObject3D(object3d)
+		scene.add(object3d)
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
 	onRenderFcts.push(function(delta){
-		var objectsToRemove	= []
-
+		var objects	= []
 		// traverse the scene and update object with colliders
 		scene.traverse(function(object3d){
-			// only keep object3d with colliders
-			var hasCollider	= object3d.userData.collider !== undefined ? true : false
-			if( hasCollider === false )	return
-
-			updateObject3D(object3d, delta)
-
-			if( object3d.position.length() > 5 )	objectsToRemove.push(object3d)
+			if( object3d.userData.collider === undefined )	return
+			objects.push(object3d)
 		})
 
-		// remove object if needed
-		objectsToRemove.forEach(function(object3d){
-			console.assert(object3d.parent)
-			object3d.parent.remove(object3d)
+		// traverse the scene and update object with colliders
+		objects.forEach(function(object3d){
+			updateObject3D(object3d, delta)
+			// var collidingObject	= object3d
+			// console.dir(object3d)
+			// collidingObject.update(delta)
+		})
 
-			removeObject3D(object3d)
+		// traverse the scene and update object with colliders
+		objects.forEach(function(object3d){
+			if( object3d.position.length() < 5 )	return
+
+			scene.remove(object3d)
 
 			var object3d	= createObject3d()
-			addObject3D(object3d)
+			scene.add(object3d)
 		})
 	})
 
@@ -126,46 +156,6 @@
 		var helper	= object3d.userData.helper
 		helper.update()	
 	}
-	
-	function addObject3D(object3d){
-		// only keep object3d with colliders
-		var hasCollider	= object3d.userData.collider !== undefined ? true : false
-		if( hasCollider === false )	return
-
-		// add the object to the scene
-		scene.add(object3d)
-
-		// log to debug
-		console.log('objectAdded', object3d)
-
-		// add the collider
-		var collider	= object3d.userData.collider
-		colliderSystem.add(collider)
-
-		// add the helper
-		var helper	= object3d.userData.helper
-		scene.add(helper)
-	}
-
-	function removeObject3D(object3d){
-		// only keep object3d with colliders
-		var hasCollider	= object3d.userData.collider !== undefined ? true : false
-		if( hasCollider === false )	return
-
-		// log to debug
-		console.log('objectRemoved', object3d)
-
-		// add the object to the scene
-		scene.remove(object3d)
-
-		// remove the collider
-		var collider	= object3d.userData.collider
-		colliderSystem.remove(collider)
-
-		// remove helper
-		var helper	= object3d.userData.helper
-		scene.remove(helper)
-	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Comment								//
@@ -177,6 +167,7 @@
 		var material	= new THREE.MeshNormalMaterial();
 		var object3d	= new THREE.Mesh( geometry, material );
 
+		object3d	= new THREEx.CollidingObject3d(object3d)
 
 		// set initial velocity
 		var velocity	= new THREE.Vector3()

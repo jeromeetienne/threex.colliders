@@ -11,7 +11,7 @@ THREEx.ColliderHelper	= function( collider ){
 //		THREEx.ColliderBox3Helper
 //////////////////////////////////////////////////////////////////////////////////
 THREEx.ColliderBox3Helper	= function( collider ){
-	// check arguments
+	// check argument
 	console.assert( collider instanceof THREEx.ColliderBox3 )
 	// setup geometry/material
 	var geometry	= new THREE.BoxGeometry(1,1,1)

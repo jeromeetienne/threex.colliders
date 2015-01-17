@@ -2,7 +2,7 @@
 <script src='http://betterjs.org/build/better.js'></script>
 <script src='vendor/three.js/build/three.min.js'></script>
 <script src='vendor/three.js/examples/js/controls/OrbitControls.js'></script>
-<script src='../threex.colliders.js'></script>
+<script src='../threex.colliders2.js'></script>
 <script src='../threex.colliderhelper.js'></script>
 <body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'><script>
 	var renderer	= new THREE.WebGLRenderer();
@@ -57,7 +57,17 @@
 	//////////////////////////////////////////////////////////////////////////////////
 	var colliderSystem	= new THREEx.ColliderSystem()
 	onRenderFcts.push(function(){
-		colliderSystem.notify()	
+		// build colliders 
+		// - here you use your own data structure, threex.colliders.js doesnt care
+		var colliders	= []
+		scene.traverse(function(object3d){
+			var collider	= object3d.userData.collider
+			if( collider === undefined )	return
+			colliders.push( collider )
+		})
+		
+		// update the colliderSystem
+		colliderSystem.computeAndNotify(colliders)
 	})
 
 /*
@@ -83,24 +93,25 @@
 		addObject3D(object3d)
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
 	onRenderFcts.push(function(delta){
-		var objectsToRemove	= []
-
+		var objects	= []
 		// traverse the scene and update object with colliders
 		scene.traverse(function(object3d){
-			// only keep object3d with colliders
-			var hasCollider	= object3d.userData.collider !== undefined ? true : false
-			if( hasCollider === false )	return
-
-			updateObject3D(object3d, delta)
-
-			if( object3d.position.length() > 5 )	objectsToRemove.push(object3d)
+			if( object3d.userData.collider === undefined )	return
+			objects.push(object3d)
 		})
 
-		// remove object if needed
-		objectsToRemove.forEach(function(object3d){
-			console.assert(object3d.parent)
-			object3d.parent.remove(object3d)
+		// traverse the scene and update object with colliders
+		objects.forEach(function(object3d){
+			updateObject3D(object3d, delta)
+		})
+
+		// traverse the scene and update object with colliders
+		objects.forEach(function(object3d){
+			if( object3d.position.length() < 5 )	return
 
 			removeObject3D(object3d)
 
@@ -128,19 +139,12 @@
 	}
 	
 	function addObject3D(object3d){
-		// only keep object3d with colliders
-		var hasCollider	= object3d.userData.collider !== undefined ? true : false
-		if( hasCollider === false )	return
 
 		// add the object to the scene
 		scene.add(object3d)
 
 		// log to debug
-		console.log('objectAdded', object3d)
-
-		// add the collider
-		var collider	= object3d.userData.collider
-		colliderSystem.add(collider)
+		// console.log('objectAdded', object3d)
 
 		// add the helper
 		var helper	= object3d.userData.helper
@@ -148,19 +152,12 @@
 	}
 
 	function removeObject3D(object3d){
-		// only keep object3d with colliders
-		var hasCollider	= object3d.userData.collider !== undefined ? true : false
-		if( hasCollider === false )	return
 
 		// log to debug
-		console.log('objectRemoved', object3d)
+		// console.log('objectRemoved', object3d)
 
 		// add the object to the scene
 		scene.remove(object3d)
-
-		// remove the collider
-		var collider	= object3d.userData.collider
-		colliderSystem.remove(collider)
 
 		// remove helper
 		var helper	= object3d.userData.helper

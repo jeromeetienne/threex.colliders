@@ -8,92 +8,6 @@ THREEx.ColliderSystem	= function(){
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Comment								//
 	//////////////////////////////////////////////////////////////////////////////////
-	this.colliders	= []
-	var colliders	= this.colliders
-
-	/**
-	 * Add a collider to the system
-	 *
-	 * @param {THREEx.Collider} collider - the collider to add
-	 */
-	this.add	= function(collider){
-		console.assert(collider instanceof THREEx.Collider )
-		this.colliders.push(collider)
-	}
-
-	/**
-	 * remove a collider from the system
-	 * @param {THREEx.Collider} collider - the collider to remove
-	 */
-	this.remove	= function(collider){
-		console.assert(collider instanceof THREEx.Collider )
-		var index	= this.colliders.indexOf(collider)
-		if( index === -1 )	console.warn('try to remove non present collider')
-		if( index === -1 )	return
-		// remove the collider
-		this.colliders.splice(index,1)
-		// remove pending states for removed collider
-		Object.keys(states).forEach(function(stateLabel){
-			// console.log('remove pending state', stateLabel)
-			// test if this removed keep any states
-			var toRemove	= stateLabel.match('-'+collider.id) || stateLabel.match(collider.id+'-')
-			// update states
-			if( toRemove ){
-				// console.log('state should be removed', stateLabel)
-				delete states[stateLabel]
-			}
-		})
-	}
-
-	/**
-	 * sync local colliders list to collidersDst list
-	 * 
-	 * @param  {THREE.Collider[]} collidersDst - the colliders to sync with
-	 */
-	this.syncWithColliders	= function(collidersDst){
-		var collidersSrc= this.colliders
-
-		// go thru collidersDst to find new collider
-		for( var i = 0; i < collidersDst.length; i++ ){
-			var collider	= collidersDst[i]
-			var isNew	= isPresent(collidersSrc, collider)
-			if( isNew === true )	continue
-
-			// console.log('ADD ', collider)
-			this.add(collider)
-		}
-
-		// go thru collidersSrc to find new collider
-		for( var i = 0; i < collidersSrc.length; i++ ){
-			var collider	= collidersSrc[i]
-			var isStillThere= isPresent(collidersDst, collider)
-			if( isStillThere === true )	continue
-
-			// console.log('REMOVE ', collider)
-			this.remove(collider)
-		}
-
-
-		return
-		/**
-		 * test if the 
-		 * @param  {[type]} list    [description]
-		 * @param  {[type]} collider [description]
-		 * @return {[type]}         [description]
-		 */
-		function isPresent(colliders, collider){
-			for( var i = 0; i < colliders.length; i++ ){
-				if( colliders[i] === collider ){
-					return true
-				}
-			}
-			return false
-		}
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Comment								//
-	//////////////////////////////////////////////////////////////////////////////////
 	var states	= {}
 	this._states	= states
 	function getStateLabel(collider1, collider2){
@@ -104,10 +18,86 @@ THREEx.ColliderSystem	= function(){
 		return stateLabel
 
 	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * compute collisions states and notify events appropriatly
+	 * @param  {THREEx.Collider[]} colliders - array of colliders
+	 */
+	this.computeAndNotify	= function(colliders){
+		// purge states from the colliders which are no more there 
+		purgeState(colliders)
+		// compute and notify contacts between colliders
+		notifyContacts(colliders)
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * purge states 
+	 * - go thru all states
+	 * - any states which isnt both in colliders, remove it
+	 * - if only one of both colliders is still present, notify contactRemoved(contactId)
+	 * 
+	 * @param  {THREE.Collider[]} colliders - base to purge state
+	 */
+	function purgeState(colliders){
+		// remove pending states for removed collider
+		Object.keys(states).forEach(function(stateLabel){
+			// get leftColliderId
+			var leftColliderId	= parseInt(stateLabel.match(/^([0-9]+)-/)[1])
+			var rightColliderId	= parseInt(stateLabel.match(/-([0-9]+)$/)[1])
+
+			// get colliders based on their id
+			var leftCollider	= findById(colliders, leftColliderId)
+			var rightCollider	= findById(colliders, rightColliderId)
+
+			// handle differently depending on their presence
+			if( leftCollider !== null && rightCollider !== null ){
+				// both still present, do nothing
+				return
+			}else if( leftCollider !== null && rightCollider === null ){
+				// right collider got removed
+				leftCollider.dispatchEvent('contactRemoved', rightColliderId)
+			}else if( leftCollider === null && rightCollider !== null ){
+				// left collider got removed
+				rightCollider.dispatchEvent('contactRemoved', leftColliderId)
+			}else{
+				// both got removed
+			}
+
+			// update states
+			delete states[stateLabel]
+		})
+
+		return
+
+		function findById(colliders, colliderId){
+			for( var i = 0; i < colliders.length; i++ ){
+				if( colliders[i].id === colliderId ){
+					return colliders[i]
+				}
+			}
+			return null
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
+
 	/**
 	 * Compute the collision and immediatly notify the listener
+	 * 
+	 * @param  {THREE.Collider[]} colliders - base to purge state
 	 */
-	this.notify	= function(){
+	function notifyContacts(colliders){
 		for(var i = 0; i < colliders.length; i++){
 			var collider1	= colliders[i]
 			for(var j = i+1; j < colliders.length; j++){
@@ -129,7 +119,7 @@ THREEx.ColliderSystem	= function(){
 					states[stateLabel]	= 'dummy'
 				}else{
 					// notify proper events
-					if( stateExisted ){
+					if( stateExisted === true ){
 						dispatchEvent(collider1, collider2, 'contactExit')
 					}
 					// update states
@@ -138,6 +128,7 @@ THREEx.ColliderSystem	= function(){
 			}
 		}
 		// console.log('post notify states', Object.keys(states).length)
+		return
 
 		function dispatchEvent(collider1, collider2, eventName){
 			// console.log('dispatchEvent', eventName)

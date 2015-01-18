@@ -12,6 +12,9 @@ Show Don't Tell
 * [examples/basic.html](http://jeromeetienne.github.io/threex.colliders/examples/basic.html)
 \[[view source](https://github.com/jeromeetienne/threex.colliders/blob/master/examples/basic.html)\] :
 It shows a basic usage of this extension.
+* [examples/demo.html](http://jeromeetienne.github.io/threex.colliders/examples/demo.html)
+\[[view source](https://github.com/jeromeetienne/threex.colliders/blob/master/examples/demo.html)\] :
+It shows all the cases of collisions.
 
 A Screenshot
 ============

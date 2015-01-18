@@ -15,6 +15,7 @@ THREEx.Collider	= function(object3d){
 	this.userData	= {}
 }
 
+
 THREEx.Collider.idCount	= 0;
 
 
@@ -122,6 +123,11 @@ THREEx.ColliderBox3.prototype = Object.create( THREEx.Collider.prototype );
 //		.update
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * update this Collider
+ * 
+ * @param  {String=} updateMode - the update mode to use. default to this.updateMode
+ */
 THREEx.ColliderBox3.prototype.update	= function(updateMode){
 	// default arguments
 	updateMode	= updateMode	|| this.updateMode
@@ -159,12 +165,24 @@ THREEx.ColliderBox3.prototype.update	= function(updateMode){
 //		.collideWith
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * test if this collider collides with the otherCollider
+ * 
+ * @param {THREEx.Collider} otherCollider - the other collider
+ * @return {Boolean} - true if they are in contact, false otherwise
+ */
 THREEx.ColliderBox3.prototype.collideWith	= function(otherCollider){
 	if( otherCollider instanceof THREEx.ColliderBox3 ){
 		return this.collideWithBox3(otherCollider)
 	}else	console.assert(false)
 }
 
+/**
+ * test if this collider collides with the otherCollider
+ * 
+ * @param {THREEx.ColliderBox3} otherCollider - the other collider
+ * @return {Boolean} - true if they are in contact, false otherwise
+ */
 THREEx.ColliderBox3.prototype.collideWithBox3	= function(otherCollider){
 	console.assert( otherCollider instanceof THREEx.ColliderBox3 )
 

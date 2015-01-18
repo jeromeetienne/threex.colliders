@@ -17,10 +17,16 @@
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Comment								//
 	//////////////////////////////////////////////////////////////////////////////////
+
 	var colliderSystem	= new THREEx.ColliderSystem()
 
-
+	/**
+	 * list of colliders
+	 * @type {THREEx.Collider[]}
+	 */
 	var colliders	= []
+	
+	// compute and notify events to all colliders
 	onRenderFcts.push(function(){
 		colliderSystem.computeAndNotify(colliders)	
 	})

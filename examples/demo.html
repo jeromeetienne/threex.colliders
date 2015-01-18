@@ -34,7 +34,7 @@
 	var scene	= new THREE.Scene();
 	var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
 	camera.position.z = 8;
-
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Init camera controls
 	//////////////////////////////////////////////////////////////////////////////////
@@ -91,9 +91,11 @@
 
 			// make it move
 			onRenderFcts.push(function(delta){
+				// update object position
 				var speed	= (endX - startX)/3
 				object3d.position.x	+= delta * speed
 
+				// detect if the object MUST be reset
 				if( object3d.position.x >= position.x + endX ){
 					if( objectReuseEnabled === false ){
 						removeObject3D(object3d)
@@ -109,7 +111,7 @@
 	})()
 
 	//////////////////////////////////////////////////////////////////////////////////
-	//		Comment								//
+	//		update all object3d
 	//////////////////////////////////////////////////////////////////////////////////
 	onRenderFcts.push(function(delta){
 		var objects	= []
@@ -157,7 +159,6 @@
 	}
 
 	function removeObject3D(object3d){
-
 		// log to debug
 		// console.log('objectRemoved', object3d)
 
@@ -184,7 +185,7 @@
 		object3d.userData.velocity	= new THREE.Vector3()
 
 		//////////////////////////////////////////////////////////////////////////////////
-		//		Comment								//
+		//		Create a collider
 		//////////////////////////////////////////////////////////////////////////////////
 
 		// init collider
@@ -211,7 +212,6 @@
 			helper.material.color.set('blue')
 			helper.material.wireframeLinewidth = 1
 		})
-
 		collider.addEventListener('contactStay', function(otherCollider){
 			helper.material.wireframeLinewidth = 3
 		})

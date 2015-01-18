@@ -1,15 +1,17 @@
 var THREEx	= THREEx	|| {}
 
-
 THREEx.ColliderHelper	= function( collider ){
 	if( collider instanceof THREEx.ColliderBox3 ){
 		return new THREEx.ColliderBox3Helper(collider)
 	}else	console.assert(false)
 }
 
+
+
 //////////////////////////////////////////////////////////////////////////////////
 //		THREEx.ColliderBox3Helper
 //////////////////////////////////////////////////////////////////////////////////
+
 THREEx.ColliderBox3Helper	= function( collider ){
 	// check argument
 	console.assert( collider instanceof THREEx.ColliderBox3 )
@@ -33,6 +35,3 @@ THREEx.ColliderBox3Helper	= function( collider ){
 }
 
 THREEx.ColliderBox3Helper.prototype = Object.create( THREE.Mesh.prototype );
-
-
-

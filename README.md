@@ -1,4 +1,4 @@
-threex.colliders
+3threex.colliders
 =============
 
 threex.colliders is a
@@ -64,12 +64,6 @@ Now with your ```THREEx.Box3``` you create your controller
 
 ```
 var collider    = new THREEx.ColliderBox3(object3d, box3)
-```
-
-and add it to the system
-
-```
-colliderSystem.add(collider)
 ```
 
 ### Helpers for easier creation

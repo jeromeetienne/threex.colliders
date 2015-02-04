@@ -98,7 +98,7 @@
 				// detect if the object MUST be reset
 				if( object3d.position.x >= position.x + endX ){
 					if( objectReuseEnabled === false ){
-						removeObject3D(object3d)
+						destroyObject3d(object3d)
 						object3d	= createObject3d()
 						addObject3D(object3d)				
 					}
@@ -158,16 +158,19 @@
 		scene.add(helper)
 	}
 
-	function removeObject3D(object3d){
+	function destroyObject3d(object3d){
 		// log to debug
 		// console.log('objectRemoved', object3d)
 
 		// add the object to the scene
 		scene.remove(object3d)
+		object3d.material.dispose()
+		object3d.geometry.dispose()
 
 		// remove helper
 		var helper	= object3d.userData.helper
 		scene.remove(helper)
+		helper.dispose()
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////

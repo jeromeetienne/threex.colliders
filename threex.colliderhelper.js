@@ -1,5 +1,10 @@
 var THREEx	= THREEx	|| {}
 
+/**
+ * An helper object to help visualize your colilder
+ * 
+ * @param {THREE.Collider} collider - the collider to monitor
+ */
 THREEx.ColliderHelper	= function( collider ){
 	if( collider instanceof THREEx.ColliderBox3 ){
 		return new THREEx.ColliderBox3Helper(collider)
@@ -12,6 +17,11 @@ THREEx.ColliderHelper	= function( collider ){
 //		THREEx.ColliderBox3Helper
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * An helper object to help visualize your colilder
+ * 
+ * @param {THREE.Collider} collider - the collider to monitor
+ */
 THREEx.ColliderBox3Helper	= function( collider ){
 	// check argument
 	console.assert( collider instanceof THREEx.ColliderBox3 )
@@ -31,6 +41,14 @@ THREEx.ColliderBox3Helper	= function( collider ){
 		var box3	= collider.updatedBox3
 		this.scale.copy( box3.size() )
 		this.position.copy( box3.center() )
+	}
+	
+	/**
+	 * free webgl memory
+	 */
+	this.dispose	= function(){
+		geometry.dispose()
+		material.dispose()
 	}
 }
 
